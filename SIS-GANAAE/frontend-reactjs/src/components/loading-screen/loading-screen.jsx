@@ -9,7 +9,7 @@ function LoadingScreen() {
             tabIndex={-1}
             className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-accent/10 flex items-center justify-center flex-col"
         >
-            <img className="w-2/6 h-2/6 mb-10" src="public/images/logo-mep.png" alt="Logotipo del ministerio de educación pública" />
+            <img className="w-2/6 h-2/6 mb-10" src="/images/logo-mep.png" alt="Logotipo del ministerio de educación pública" />
             <div className="text-center">
                 <div className="relative mb-8">
                     <div className="w-20 h-20 bg-primary rounded-2xl mx-auto flex items-center justify-center shadow-2xl animate-pulse motion-reduce:animate-none">
