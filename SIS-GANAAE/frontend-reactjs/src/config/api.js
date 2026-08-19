@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const rawBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const rawBase = import.meta.env.VITE_API_BASE_URL || 'https://sistemaljm.onrender.com/api';
 
 export const API_BASE_URL = String(rawBase).replace(/\/$/, '');
 
