@@ -1,6 +1,6 @@
 import LoadingScreen from '../../components/loading-screen/loading-screen';
 import { useState, useEffect } from 'react';
-import Login from '../login/login';
+import Login from '../login/Login';
 
 
 function Loading() {
