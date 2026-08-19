@@ -1,0 +1,24 @@
+# Producción: imagen mínima, sin nodemon, usuario non-root
+FROM node:20-bookworm-slim AS deps
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+FROM node:20-bookworm-slim AS runner
+WORKDIR /usr/src/app
+ENV NODE_ENV=production
+
+RUN groupadd --system --gid 1001 nodejs \
+  && useradd --system --uid 1001 --gid nodejs appuser
+
+COPY --from=deps /usr/src/app/node_modules ./node_modules
+COPY package*.json ./
+COPY configjwt.js ./
+COPY knexfile.js ./
+COPY src ./src
+
+RUN mkdir -p uploads && chown -R appuser:nodejs /usr/src/app
+
+USER appuser
+EXPOSE 3000
+CMD ["npm", "start"]

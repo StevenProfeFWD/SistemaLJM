@@ -1,0 +1,93 @@
+# Despliegue de producción (no usar nodemon ni Vite dev)
+# Uso: docker compose -f docker-compose.prod.yml up -d --build
+#
+# Requisitos en .env:
+#   NODE_ENV=production
+#   JWT_SECRET / COOKIE_ENCRYPTION_KEY fuertes (≥16, no defaults)
+#   FRONTEND_ORIGIN=https://tu-dominio  (o http://localhost:8080 en prueba)
+#   DB_USER / DB_PASS
+#
+# HTTPS: coloque un reverse proxy (Caddy/Traefik/nginx) delante del puerto 8080
+# terminando TLS y reenviando a este stack. Ver DEPLOY_PRODUCCION.md
+
+services:
+  database:
+    image: postgres:16
+    container_name: postgres-db-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: gestion_asistencias_marti
+      POSTGRES_PASSWORD: ${DB_PASS}
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+      - gestion_asistencias_data_prod:/var/lib/postgresql
+    networks:
+      - marti-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d gestion_asistencias_marti"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  backend:
+    build:
+      context: ./backend-node
+      dockerfile: Dockerfile.prod
+    container_name: node-backend-prod
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      DB_CLIENT: pg
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASS}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: gestion_asistencias_marti
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN}
+    expose:
+      - "3000"
+    networks:
+      - marti-network
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 25s
+
+  frontend:
+    build:
+      context: ./frontend-reactjs
+      dockerfile: Dockerfile.prod
+      args:
+        VITE_API_BASE_URL: /api
+    container_name: react-frontend-prod
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    networks:
+      - marti-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/ || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+networks:
+  marti-network:
+    driver: bridge
+
+volumes:
+  gestion_asistencias_data_prod:

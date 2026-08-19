@@ -1,0 +1,11 @@
+Comandos para abrir la info de la BD:
+    - docker exec -it postgres-db psql -U root -d gestion_asistencias_marti
+
+    Este comando desde PW y en la carpeta del proyecto
+    - Get-Content database/05_bd_fix_ano_a_cursar.sql | docker exec -i postgres-db psql -U root -d gestion_asistencias_marti
+
+Comandos más comunes:
+    - select * from persona;
+    - select * from usuariosistema;
+
+    
