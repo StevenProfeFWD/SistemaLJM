@@ -7,10 +7,11 @@ export function esProduccion() {
 }
 
 export function cookieAuthOptions({ maxAgeMs } = {}) {
+  const isProd = esProduccion();
   const opts = {
     httpOnly: true,
-    secure: esProduccion(),
-    sameSite: 'lax',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',,
     path: '/',
   };
   if (typeof maxAgeMs === 'number' && maxAgeMs > 0) {
@@ -21,10 +22,11 @@ export function cookieAuthOptions({ maxAgeMs } = {}) {
 
 /** Misma firma que cookieAuthOptions para que el navegador borre la cookie correctamente. */
 export function cookieClearOptions() {
+  const isProd = esProduccion();
   return {
     httpOnly: true,
-    secure: esProduccion(),
-    sameSite: 'lax',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
     path: '/',
   };
 }
