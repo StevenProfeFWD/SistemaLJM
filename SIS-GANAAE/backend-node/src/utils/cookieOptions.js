@@ -11,7 +11,7 @@ export function cookieAuthOptions({ maxAgeMs } = {}) {
   const opts = {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd ? 'none' : 'lax',,
+    sameSite: isProd ? 'none' : 'lax',
     path: '/',
   };
   if (typeof maxAgeMs === 'number' && maxAgeMs > 0) {
