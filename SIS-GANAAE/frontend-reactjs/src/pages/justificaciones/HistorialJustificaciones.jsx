@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Eye, FileCheck, Loader2, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import MainBar from '../../components/side-bar/mainBar';
-import DetalleJustificacionModal, {
-  badgeTipoJustificacion,
-  formatFechaJustificacion,
-} from '../../components/DetalleJustificacionModal';
+import DetalleJustificacionModal from '../../components/DetalleJustificacionModal';
+import { badgeTipoJustificacion, formatFechaJustificacion } from '../../lib/justificacionFormato';
 import justificacionServicio from '../../services/justificacionServices';
 import { useAuth } from '../../context/AuthContext';
 import { mapApiError } from '../../lib/errors';
