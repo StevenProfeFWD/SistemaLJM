@@ -36,3 +36,27 @@ export function puedeVerReportesEstrategicos(rol) {
 export function puedeLeerOrientacion(rol) {
   return esAdministradorPlataforma(rol) || rol === ROL_ORIENTADOR;
 }
+
+/** Historial global de justificaciones (profesor con alcance acotado a sus secciones). */
+export function puedeListarJustificacionesGlobales(rol) {
+  return esAdministradorPlataforma(rol) || rol === ROL_ORIENTADOR || rol === ROL_PROFESOR;
+}
+
+/** Acceso sin restricción de sección al historial de justificaciones. */
+export function tieneAlcanceGlobalJustificaciones(rol) {
+  return esAdministradorPlataforma(rol) || rol === ROL_ORIENTADOR;
+}
+
+const ETIQUETAS_ROL = {
+  [ROL_SUPER_ADMIN]: 'Super administrador',
+  [ROL_ADMIN]: 'Administrador',
+  [ROL_ORIENTADOR]: 'Orientador',
+  [ROL_PROFESOR]: 'Profesor',
+  padre_de_familia: 'Encargado',
+};
+
+/** Etiqueta legible del rol de una persona (p. ej. "registrado por"). */
+export function etiquetaRolPersona(rol) {
+  if (!rol) return '';
+  return ETIQUETAS_ROL[rol] || String(rol).replace(/_/g, ' ');
+}

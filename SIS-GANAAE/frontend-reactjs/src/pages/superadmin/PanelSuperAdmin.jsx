@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import MainBar from '../../components/side-bar/mainBar';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Shield, Users, PieChart, History } from 'lucide-react';
+import { Shield, Users, PieChart, History, FileCheck } from 'lucide-react';
 
 export default function PanelSuperAdmin() {
   return (
@@ -71,6 +71,19 @@ export default function PanelSuperAdmin() {
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
                     Historial de suspensiones, permisos y expulsiones con descarga de comprobantes oficiales.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link to="/justificaciones">
+              <Card className="hover:border-primary/40 transition-colors cursor-pointer h-full">
+                <CardHeader>
+                  <FileCheck className="h-8 w-8 text-primary mb-2" />
+                  <CardTitle className="text-lg">Justificaciones</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Consulta del historial global de justificaciones de ausencias y del usuario que las registró.
                   </p>
                 </CardContent>
               </Card>

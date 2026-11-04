@@ -50,3 +50,27 @@ export async function obtenerIdsEstudiantesVisiblesParaProfesor(idProfesor) {
 
   return [...new Set([...porGuia, ...porClase])];
 }
+
+/**
+ * IDs de secciones visibles para un docente en el año lectivo vigente:
+ * secciones de su carga académica (profesor_materia_seccion) o donde es profesor guía.
+ */
+export async function obtenerIdsSeccionesVisiblesParaProfesor(idProfesor) {
+  const idProf = parseInt(idProfesor, 10);
+  if (!Number.isInteger(idProf)) return [];
+
+  const anio = new Date().getFullYear();
+
+  const [porGuia, porClase] = await Promise.all([
+    db('seccion').where('id_persona_profesor_guia', idProf).pluck('id_seccion'),
+    db('profesor_materia_seccion as pms')
+      .join('curso_lectivo as cl', 'pms.curso_lectivo', 'cl.id_curso_lectivo')
+      .where('cl.anio_curso_lectivo', anio)
+      .where('pms.id_persona_profesor', idProf)
+      .pluck('pms.id_seccion'),
+  ]);
+
+  return [...new Set([...porGuia, ...porClase].map((id) => parseInt(id, 10)))].filter(
+    Number.isInteger
+  );
+}

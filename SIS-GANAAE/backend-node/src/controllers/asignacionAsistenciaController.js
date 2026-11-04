@@ -527,12 +527,21 @@ export async function getAsistenciaEstudiantes(req, res) {
 
   let asistenciaHoy = [];
   if (fecha) {
-    asistenciaHoy = await db('asistencia')
+    asistenciaHoy = await db('asistencia as a')
+      .leftJoin('justificacion as j', 'j.id_asistencia', 'a.id_asistencia')
       .where({
-        id_profesor_materia_seccion: parseInt(id_asignacion),
-        fecha: fecha
+        'a.id_profesor_materia_seccion': parseInt(id_asignacion),
+        'a.fecha': fecha
       })
-      .select('id_persona_estudiante', 'estado', 'observacion', 'fecha_hora');
+      .select(
+        'a.id_asistencia',
+        'a.id_persona_estudiante',
+        'a.estado',
+        'a.observacion',
+        'a.fecha_hora',
+        'j.id_justificacion',
+        'j.tipo_justificacion'
+      );
   }
 
   return res.json({
@@ -588,34 +597,58 @@ export async function postAsistencia(req, res) {
   const estadosMap = await obtenerEstadosActivosPorEstudiantes(idsLista, String(fechaDate).slice(0, 10));
 
   try {
-    await db('asistencia')
-      .where({ id_profesor_materia_seccion: idPms, fecha: fechaDate })
-      .del();
+    // Upsert (no DELETE + INSERT): conserva id_asistencia y evita borrar en cascada
+    // las justificaciones ya registradas para este día.
+    const justificados = await db('asistencia as a')
+      .join('justificacion as j', 'j.id_asistencia', 'a.id_asistencia')
+      .where({ 'a.id_profesor_materia_seccion': idPms, 'a.fecha': fechaDate })
+      .pluck('a.id_persona_estudiante');
+    const conJustificacion = new Set(justificados.map((id) => parseInt(id, 10)));
 
     const registrosInsertados = [];
 
-    for (const item of lista) {
-      const idEst = parseInt(item.id_persona_estudiante, 10);
-      const especial = estadosMap.get(idEst);
-      let estado = (item.estado && estadosValidos.includes(item.estado)) ? item.estado : 'presente';
-
-      if (especial && esEstadoBloqueante(especial.tipo_estado)) {
-        estado = estadoAsistenciaForzado(especial.tipo_estado);
-      }
-
-      const [insertado] = await db('asistencia')
-        .insert({
-          id_profesor_materia_seccion: idPms,
-          fecha: fechaDate,
-          fecha_hora: new Date(),
-          id_persona_estudiante: parseInt(item.id_persona_estudiante),
-          estado,
-          observacion: item.observacion || null,
+    await db.transaction(async (trx) => {
+      // Estudiantes que ya no vienen en la lista: se eliminan salvo que tengan justificación
+      await trx('asistencia')
+        .where({ id_profesor_materia_seccion: idPms, fecha: fechaDate })
+        .whereNotIn('id_persona_estudiante', idsLista.filter(Number.isInteger))
+        .whereNotExists(function sinJustificacion() {
+          this.select(db.raw('1'))
+            .from('justificacion as j')
+            .whereRaw('j.id_asistencia = asistencia.id_asistencia');
         })
-        .returning(['id_asistencia', 'id_persona_estudiante', 'estado']);
+        .del();
 
-      registrosInsertados.push(insertado);
-    }
+      for (const item of lista) {
+        const idEst = parseInt(item.id_persona_estudiante, 10);
+        const especial = estadosMap.get(idEst);
+        let estado = (item.estado && estadosValidos.includes(item.estado)) ? item.estado : 'presente';
+
+        if (especial && esEstadoBloqueante(especial.tipo_estado)) {
+          estado = estadoAsistenciaForzado(especial.tipo_estado);
+        }
+
+        // Una ausencia con justificación registrada permanece como "justificado"
+        if (conJustificacion.has(idEst)) {
+          estado = 'justificado';
+        }
+
+        const [registro] = await trx('asistencia')
+          .insert({
+            id_profesor_materia_seccion: idPms,
+            fecha: fechaDate,
+            fecha_hora: new Date(),
+            id_persona_estudiante: idEst,
+            estado,
+            observacion: item.observacion || null,
+          })
+          .onConflict(['id_persona_estudiante', 'id_profesor_materia_seccion', 'fecha'])
+          .merge(['estado', 'observacion', 'fecha_hora'])
+          .returning(['id_asistencia', 'id_persona_estudiante', 'estado']);
+
+        registrosInsertados.push(registro);
+      }
+    });
 
     dispararNotificacionesAusencias({
       registros: registrosInsertados,
@@ -624,7 +657,7 @@ export async function postAsistencia(req, res) {
       nombreSeccion: asignacion.nombre_seccion,
     });
 
-    return res.status(201).json({ message: 'Asistencia registrada' });
+    return res.status(201).json({ message: 'Asistencia registrada', registros: registrosInsertados });
   } catch (error) {
     if (error.code === '23505') {
       return res.status(409).json({ error: 'Ya existe asistencia para este día; use actualización.' });

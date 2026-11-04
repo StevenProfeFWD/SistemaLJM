@@ -10,6 +10,11 @@ import { Select } from '../../components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { useDialog } from '../../context/DialogContext';
 import LoadingStatus from '../../components/ui/LoadingStatus';
+import RegistrarJustificacionModal from '../../components/RegistrarJustificacionModal';
+import DetalleJustificacionModal from '../../components/DetalleJustificacionModal';
+import { FileCheck, Eye } from 'lucide-react';
+
+const ESTADOS_JUSTIFICABLES = ['ausente', 'tardanza'];
 
 const ESTADO_ESPECIAL_UI = {
   suspension: {
@@ -87,6 +92,11 @@ export default function Asistencia() {
   const [loading, setLoading] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [sustitucionVigente, setSustitucionVigente] = useState(null);
+  // Registros guardados del día: { [id_persona]: { id_asistencia, estado, id_justificacion } }
+  const [registrosGuardados, setRegistrosGuardados] = useState({});
+  const [recarga, setRecarga] = useState(0);
+  const [justificando, setJustificando] = useState(null);
+  const [detalleJustificacionId, setDetalleJustificacionId] = useState(null);
 
   useEffect(() => {
     personalServicio
@@ -128,9 +138,16 @@ export default function Asistencia() {
         const lista = res.estudiantes || [];
         setEstudiantes(lista);
         const prev = {};
+        const guardados = {};
         (res.asistencia_hoy || []).forEach((a) => {
           prev[a.id_persona_estudiante] = a.estado;
+          guardados[a.id_persona_estudiante] = {
+            id_asistencia: a.id_asistencia,
+            estado: a.estado,
+            id_justificacion: a.id_justificacion || null,
+          };
         });
+        setRegistrosGuardados(guardados);
         const map = {};
         lista.forEach((e) => {
           map[e.id_persona] = estadoInicialMarca(e, prev[e.id_persona]);
@@ -140,9 +157,10 @@ export default function Asistencia() {
       .catch(() => {
         setEstudiantes([]);
         setMarcas({});
+        setRegistrosGuardados({});
       })
       .finally(() => setLoading(false));
-  }, [seleccionada, fecha]);
+  }, [seleccionada, fecha, recarga]);
 
   const handleEstado = (idPersona, estado, estadoEspecial) => {
     if (esBloqueado(estadoEspecial)) return;
@@ -164,7 +182,10 @@ export default function Asistencia() {
         fecha,
         lista,
       })
-      .then(() => toast('Asistencia guardada correctamente.', 'success'))
+      .then(() => {
+        toast('Asistencia guardada correctamente.', 'success');
+        setRecarga((n) => n + 1);
+      })
       .catch((err) =>
         alert(mapApiError(err, 'Error al guardar la asistencia.'), { variant: 'error', title: 'Error' })
       )
@@ -264,6 +285,14 @@ export default function Asistencia() {
                     const valorAsistencia = bloqueado
                       ? 'justificado'
                       : (marcas[e.id_persona] || 'presente');
+                    const guardado = registrosGuardados[e.id_persona];
+                    const tieneJustificacion = Boolean(guardado?.id_justificacion);
+                    const puedeJustificar =
+                      !bloqueado &&
+                      !tieneJustificacion &&
+                      guardado?.id_asistencia &&
+                      ESTADOS_JUSTIFICABLES.includes(guardado.estado) &&
+                      marcas[e.id_persona] === guardado.estado;
 
                     return (
                       <li
@@ -292,17 +321,48 @@ export default function Asistencia() {
                             </span>
                           )}
                         </div>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0">
+                        {tieneJustificacion && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setDetalleJustificacionId(guardado.id_justificacion)}
+                            aria-label={`Ver justificación de ${e.nombre_completo}`}
+                            className="text-emerald-700 border-emerald-300"
+                          >
+                            <Eye className="h-4 w-4" aria-hidden="true" />
+                            Justificada
+                          </Button>
+                        )}
+                        {puedeJustificar && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setJustificando({
+                                idAsistencia: guardado.id_asistencia,
+                                nombre: e.nombre_completo,
+                              })
+                            }
+                            aria-label={`Justificar ausencia de ${e.nombre_completo}`}
+                          >
+                            <FileCheck className="h-4 w-4" aria-hidden="true" />
+                            Justificar
+                          </Button>
+                        )}
                         <Select
-                          className={`w-full sm:w-56 shrink-0 ${bloqueado ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          className={`w-full sm:w-56 shrink-0 ${bloqueado || tieneJustificacion ? 'opacity-60 cursor-not-allowed' : ''}`}
                           aria-label={`Asistencia de ${e.nombre_completo}`}
-                          aria-disabled={bloqueado}
+                          aria-disabled={bloqueado || tieneJustificacion}
                           title={
                             bloqueado
                               ? 'Estudiante suspendido o expulsado: asistencia fijada en Justificado'
                               : undefined
                           }
-                          value={valorAsistencia}
-                          disabled={bloqueado}
+                          value={tieneJustificacion ? 'justificado' : valorAsistencia}
+                          disabled={bloqueado || tieneJustificacion}
                           onChange={(ev) => handleEstado(e.id_persona, ev.target.value, e.estadoEspecial)}
                         >
                           <option value="presente">Presente</option>
@@ -310,6 +370,7 @@ export default function Asistencia() {
                           <option value="justificado">Justificado</option>
                           <option value="tardanza">Tardanza</option>
                         </Select>
+                        </div>
                       </li>
                     );
                   })}
@@ -325,6 +386,27 @@ export default function Asistencia() {
           </CardContent>
         </Card>
       </main>
+
+      {justificando && (
+        <RegistrarJustificacionModal
+          idAsistencia={justificando.idAsistencia}
+          nombreEstudiante={justificando.nombre}
+          fecha={fecha}
+          onClose={() => setJustificando(null)}
+          onRegistrada={() => {
+            setJustificando(null);
+            toast('Justificación registrada correctamente.', 'success');
+            setRecarga((n) => n + 1);
+          }}
+        />
+      )}
+
+      {detalleJustificacionId && (
+        <DetalleJustificacionModal
+          idJustificacion={detalleJustificacionId}
+          onClose={() => setDetalleJustificacionId(null)}
+        />
+      )}
     </div>
   );
 }

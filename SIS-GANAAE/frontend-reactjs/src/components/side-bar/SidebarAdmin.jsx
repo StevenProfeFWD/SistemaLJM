@@ -12,6 +12,7 @@ import {
   History,
   GraduationCap,
   UserCog,
+  FileCheck,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -42,6 +43,7 @@ const SECCIONES = [
     titulo: 'Asistencia y Convivencia',
     items: [
       { icon: UserCheck, label: 'Asistencia', href: '/asistencia' },
+      { icon: FileCheck, label: 'Justificaciones', href: '/justificaciones' },
       { icon: User, label: 'Estados especiales', href: '/orientacion/estados' },
       { icon: History, label: 'Historial de estados', href: '/orientacion/historial' },
     ],

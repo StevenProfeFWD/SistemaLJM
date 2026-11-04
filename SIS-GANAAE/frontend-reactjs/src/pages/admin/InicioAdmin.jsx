@@ -41,9 +41,10 @@ const TARJETAS = [
     titulo: 'Control de Asistencia y Convivencia',
     etiqueta: 'Convivencia',
     descripcion:
-      'Supervisión global de marcas de asistencia en el aula e ingreso/auditoría de estados especiales (suspensiones y permisos).',
+      'Supervisión global de marcas de asistencia en el aula, historial de justificaciones e ingreso/auditoría de estados especiales (suspensiones y permisos).',
     enlaces: [
       { label: 'Asistencia', href: '/asistencia' },
+      { label: 'Justificaciones', href: '/justificaciones' },
       { label: 'Estados especiales', href: '/orientacion/estados' },
       { label: 'Historial de estados', href: '/orientacion/historial' },
     ],

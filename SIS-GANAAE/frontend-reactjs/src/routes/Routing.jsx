@@ -35,6 +35,11 @@ const GestionAdministradores = lazy(() => import('../pages/superadmin/GestionAdm
 const Asistencia = lazy(() => import('../pages/asistencia/Asistencia'))
 const GrupoGuia = lazy(() => import('../pages/grupo-guia/GrupoGuia'))
 
+// Justificaciones
+const HistorialJustificaciones = lazy(() =>
+  import('../pages/justificaciones/HistorialJustificaciones')
+)
+
 // Tutor / padres
 const MisEstudiantes = lazy(() => import('../pages/tutor/MisEstudiantes'))
 const HistorialAsistenciaHijos = lazy(() => import('../pages/tutor/HistorialAsistenciaHijos'))
@@ -56,6 +61,21 @@ function Routing() {
           <Route path='/matricula' element={<ProtectedRoute allowedRoles={['administrador']}><Matricula/></ProtectedRoute>}/>
           <Route path='/precarga-estudiantes' element={<ProtectedRoute allowedRoles={['administrador']}><PrecargaEstudiantes/></ProtectedRoute>}/>
           <Route path='/asistencia' element={<ProtectedRoute allowedRoles={['administrador', 'profesor']}><Asistencia/></ProtectedRoute>}/>
+          <Route
+            path='/justificaciones'
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  'administrador',
+                  'profesor',
+                  'orientador',
+                  'super_administrador',
+                ]}
+              >
+                <HistorialJustificaciones />
+              </ProtectedRoute>
+            }
+          />
           <Route path='/grupo-guia' element={<ProtectedRoute allowedRoles={['profesor']}><GrupoGuia /></ProtectedRoute>}/>
           <Route path='/asignacion' element={<ProtectedRoute allowedRoles={['administrador']}><Asignacion/></ProtectedRoute>}/>
           <Route path='/gestion-profesores-guia' element={<ProtectedRoute allowedRoles={['administrador']}><GestionSecciones /></ProtectedRoute>}/>

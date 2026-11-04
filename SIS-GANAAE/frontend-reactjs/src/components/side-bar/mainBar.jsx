@@ -15,6 +15,7 @@ import {
   Home,
   LayoutGrid,
   X,
+  FileCheck,
 } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { Button } from "../ui/button"
@@ -28,17 +29,20 @@ const ITEMS_SUPER_ADMIN = [
   { icon: Users, label: 'Gestión de estudiantes', href: '/estudiantes' },
   { icon: PieChart, label: 'Gráficos estadísticos', href: '/dashboard-reportes' },
   { icon: History, label: 'Reportes de orientación', href: '/orientacion/historial' },
+  { icon: FileCheck, label: 'Justificaciones', href: '/justificaciones' },
 ];
 
 const ITEMS_PROFESOR = [
   { icon: BarChart3, label: "Inicio", href: "/inicio" },
   { icon: UserCheck, label: "Asistencia", href: "/asistencia" },
+  { icon: FileCheck, label: "Justificaciones", href: "/justificaciones" },
 ];
 
 const ITEM_ORIENTADOR = [
   { icon: LayoutGrid, label: 'Panel de Control', href: '/panel-orientador' },
   { icon: Users, label: "Gestión de Estudiantes", href: "/orientacion/estados", roles: ['orientador'] },
   { icon: History, label: "Historial de estados", href: "/orientacion/historial", roles: ['orientador'] },
+  { icon: FileCheck, label: "Justificaciones", href: "/justificaciones", roles: ['orientador'] },
   { icon: PieChart, label: "Reportes y Alertas", href: "/dashboard-reportes", roles: ['orientador'] },
 ];
 

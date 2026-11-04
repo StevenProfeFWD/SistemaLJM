@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import MainBar from '../../components/side-bar/mainBar';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Users, PieChart, History } from 'lucide-react';
+import { Users, PieChart, History, FileCheck } from 'lucide-react';
 
 export default function PanelOrientador() {
   return (
@@ -54,6 +54,19 @@ export default function PanelOrientador() {
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
                     Métricas estadísticas, gráficos y alertas tempranas (≥ 3 tardías o ausencias).
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link to="/justificaciones">
+              <Card className="hover:border-primary/40 transition-colors cursor-pointer h-full">
+                <CardHeader>
+                  <FileCheck className="h-8 w-8 text-primary mb-2" />
+                  <CardTitle className="text-lg">Justificaciones</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Historial global de justificaciones de ausencias con filtros por sección, tipo y fechas.
                   </p>
                 </CardContent>
               </Card>
