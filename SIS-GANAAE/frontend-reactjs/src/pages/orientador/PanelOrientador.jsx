@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import MainBar from '../../components/side-bar/mainBar';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Users, PieChart, History, FileCheck } from 'lucide-react';
+import { Users, PieChart, History, FileCheck, Bell } from 'lucide-react';
 
 export default function PanelOrientador() {
   return (
@@ -45,19 +45,6 @@ export default function PanelOrientador() {
               </Card>
             </Link>
 
-            <Link to="/dashboard-reportes">
-              <Card className="hover:border-primary/40 transition-colors cursor-pointer h-full">
-                <CardHeader>
-                  <PieChart className="h-8 w-8 text-primary mb-2" />
-                  <CardTitle className="text-lg">Reportes y alertas de permanencia</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Métricas estadísticas, gráficos y alertas tempranas (≥ 3 tardías o ausencias).
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
             <Link to="/justificaciones">
               <Card className="hover:border-primary/40 transition-colors cursor-pointer h-full">
                 <CardHeader>
@@ -67,6 +54,34 @@ export default function PanelOrientador() {
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
                     Historial global de justificaciones de ausencias con filtros por sección, tipo y fechas.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/notificaciones">
+              <Card className="hover:border-primary/40 transition-colors cursor-pointer h-full">
+                <CardHeader>
+                  <Bell className="h-8 w-8 text-primary mb-2" />
+                  <CardTitle className="text-lg">Historial de notificaciones</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Auditoría de correos enviados a encargados, con estado de envío y detalle de errores.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link to="/dashboard-reportes">
+              <Card className="hover:border-primary/40 transition-colors cursor-pointer h-full">
+                <CardHeader>
+                  <PieChart className="h-8 w-8 text-primary mb-2" />
+                  <CardTitle className="text-lg">Reportes y alertas de permanencia</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Métricas estadísticas, gráficos y alertas tempranas (≥ 3 tardías o ausencias).
                   </p>
                 </CardContent>
               </Card>

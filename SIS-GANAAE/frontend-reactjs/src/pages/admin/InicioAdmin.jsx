@@ -55,7 +55,10 @@ const TARJETAS = [
     etiqueta: 'Reportes',
     descripcion:
       'Consulta de gráficos dinámicos del nivel de asistencia general y monitoreo de alertas de permanencia escolar.',
-    enlaces: [{ label: 'Reportes estadísticos', href: '/dashboard-reportes' }],
+    enlaces: [
+      { label: 'Reportes estadísticos', href: '/dashboard-reportes' },
+      { label: 'Historial de notificaciones', href: '/notificaciones' },
+    ],
   },
 ];
 
