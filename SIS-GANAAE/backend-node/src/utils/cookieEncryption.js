@@ -11,7 +11,9 @@ function getEncryptionKey() {
     throw new Error('COOKIE_ENCRYPTION_KEY debe estar definida en .env');
   }
   if (key.length >= KEY_LENGTH) {
-    return Buffer.from(key.slice(0, KEY_LENGTH), 'utf8');
+    // Se toman 32 BYTES (no 32 caracteres): con caracteres multibyte (ñ, tildes) la clave
+    // superaba 32 bytes y AES-256 fallaba. Para claves ASCII el resultado es idéntico al anterior.
+    return Buffer.from(key, 'utf8').subarray(0, KEY_LENGTH);
   }
   return crypto.createHash('sha256').update(key).digest();
 }

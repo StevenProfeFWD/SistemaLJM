@@ -24,7 +24,13 @@ export function errorHandler(err, req, res, next) {
 
   const isProd = process.env.NODE_ENV === 'production';
   let message = err?.message || 'Error interno del servidor';
-  if (isProd && statusCode >= 500 && !(err?.statusCode >= 400 && err?.statusCode < 500)) {
+  // Errores 5xx no controlados (p. ej. de PostgreSQL) nunca exponen su mensaje interno al cliente;
+  // el detalle queda en el log del servidor. Los AppError conservan su mensaje (es intencional).
+  const esAppError = err instanceof AppError;
+  if (statusCode >= 500 && !esAppError) {
+    console.error('[errorHandler]', req?.method, req?.originalUrl, err);
+    message = 'Error interno del servidor';
+  } else if (isProd && statusCode >= 500 && !(err?.statusCode >= 400 && err?.statusCode < 500)) {
     message = 'Error interno del servidor';
   }
   if (isCors) {

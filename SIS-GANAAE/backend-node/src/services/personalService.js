@@ -17,14 +17,23 @@ async function obtenerCursoLectivoActual() {
   return curso.id_curso_lectivo;
 }
 
-const ROLES_PERSONAL = ['profesor', 'orientador'];
+/** Roles que se gestionan como personal del colegio (listar, editar, activar/inactivar). */
+// Se filtra con nombre_rol::text: si la migración 34_bd_rol_epi.sql aún no se ejecutó, 'epi' no existe en el
+// enum tipo_rol y un IN directo haría fallar también el listado de profesores y orientadores.
+const ROLES_PERSONAL = ['profesor', 'orientador', 'epi'];
+
+const ETIQUETA_ROL_PERSONAL = {
+  profesor: 'Docente',
+  orientador: 'Orientador',
+  epi: 'Equipo de Permanencia Estudiantil (EPI)',
+};
 
 export async function listarPersonal() {
   const hoy = fechaHoyIso();
   const cursoLectivo = await obtenerCursoLectivoActual();
 
   const personas = await db('persona')
-    .whereIn('nombre_rol', ROLES_PERSONAL)
+    .whereIn(db.raw('nombre_rol::text'), ROLES_PERSONAL)
     .select(
       'id_persona',
       'nombre_completo',
@@ -64,7 +73,7 @@ export async function listarPersonal() {
   return personas.map((p) => ({
     ...p,
     fecha_nacimiento: p.fecha_nacimiento ? String(p.fecha_nacimiento).slice(0, 10) : '',
-    rol_label: p.nombre_rol === 'profesor' ? 'Docente' : 'Orientador',
+    rol_label: ETIQUETA_ROL_PERSONAL[p.nombre_rol] || p.nombre_rol,
     total_asignaciones: p.nombre_rol === 'profesor' ? mapAsign.get(p.id_persona) || 0 : 0,
     sustituciones_activas_como_sustituto: sustituyendo.get(p.id_persona) || 0,
     sustituciones_activas_como_titular: siendoSustituido.get(p.id_persona) || 0,
@@ -79,7 +88,7 @@ export async function actualizarPersonal(id, body) {
 
   const persona = await db('persona')
     .where('id_persona', idPersona)
-    .whereIn('nombre_rol', ROLES_PERSONAL)
+    .whereIn(db.raw('nombre_rol::text'), ROLES_PERSONAL)
     .first();
 
   if (!persona) {
@@ -151,7 +160,7 @@ export async function cambiarEstadoPersonal(id, activo) {
 
   const persona = await db('persona')
     .where('id_persona', idPersona)
-    .whereIn('nombre_rol', ROLES_PERSONAL)
+    .whereIn(db.raw('nombre_rol::text'), ROLES_PERSONAL)
     .first();
 
   if (!persona) {

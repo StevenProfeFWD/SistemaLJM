@@ -320,7 +320,7 @@ export async function postPersona(req, res) {
     });
   }
 
-  const rolesPermitidosRegistro = ['profesor', 'orientador', 'padre_de_familia'];
+  const rolesPermitidosRegistro = ['profesor', 'orientador', 'epi', 'padre_de_familia'];
   if (!rolesPermitidosRegistro.includes(nombre_rol)) {
     return res.status(400).json({ message: 'Rol no permitido en el registro de personas.' });
   }

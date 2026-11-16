@@ -57,7 +57,18 @@ async function assertTokenNoRevocado(decoded) {
     // Tokens antiguos sin jti: se aceptan hasta que expiren (migración suave)
     return { ok: true };
   }
-  if (await tokenEstaRevocado(decoded.jti)) {
+  let revocado;
+  try {
+    revocado = await tokenEstaRevocado(decoded.jti);
+  } catch {
+    // No se pudo comprobar la revocación: se rechaza sin cerrar la sesión del cliente (503, no 401).
+    return {
+      ok: false,
+      status: 503,
+      mensaje: 'No se pudo validar la sesión en este momento. Intente de nuevo en unos segundos.',
+    };
+  }
+  if (revocado) {
     return { ok: false, status: 401, mensaje: 'Sesión revocada. Inicie sesión nuevamente.' };
   }
   return { ok: true };

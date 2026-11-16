@@ -572,6 +572,17 @@ export async function eliminarEstadoPeriodo(idEstado) {
     throw err;
   }
 
+  // Igual que al actualizar o anular: una expulsión es definitiva y no se puede borrar.
+  const existente = await db('estado_estudiante_periodo')
+    .where('id_estado_periodo', id)
+    .first('tipo_estado');
+
+  if (existente?.tipo_estado === 'expulsion') {
+    const err = new Error('La expulsión es definitiva y no puede eliminarse');
+    err.status = 403;
+    throw err;
+  }
+
   const deleted = await db('estado_estudiante_periodo')
     .where('id_estado_periodo', id)
     .del();

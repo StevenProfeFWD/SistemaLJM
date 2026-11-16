@@ -2,6 +2,7 @@ export const ROL_SUPER_ADMIN = 'super_administrador';
 export const ROL_ADMIN = 'administrador';
 export const ROL_ORIENTADOR = 'orientador';
 export const ROL_PROFESOR = 'profesor';
+export const ROL_EPI = 'epi';
 
 export function esSuperAdministrador(rol) {
   return rol === ROL_SUPER_ADMIN;
@@ -47,16 +48,24 @@ export function tieneAlcanceGlobalJustificaciones(rol) {
   return esAdministradorPlataforma(rol) || rol === ROL_ORIENTADOR;
 }
 
+/** Reportes de asistencia del Equipo de Permanencia Estudiantil (EPI). */
+export function puedeVerReportesEpi(rol) {
+  return rol === ROL_EPI || esAdministradorPlataforma(rol);
+}
+
 const ETIQUETAS_ROL = {
   [ROL_SUPER_ADMIN]: 'Super administrador',
   [ROL_ADMIN]: 'Administrador',
   [ROL_ORIENTADOR]: 'Orientador',
   [ROL_PROFESOR]: 'Profesor',
+  [ROL_EPI]: 'Equipo de Permanencia Estudiantil',
   padre_de_familia: 'Encargado',
 };
 
 /** Etiqueta legible del rol de una persona (p. ej. "registrado por"). */
 export function etiquetaRolPersona(rol) {
   if (!rol) return '';
-  return ETIQUETAS_ROL[rol] || String(rol).replace(/_/g, ' ');
+  // hasOwn evita devolver propiedades heredadas de Object.prototype ('toString', 'constructor').
+  if (Object.hasOwn(ETIQUETAS_ROL, rol)) return ETIQUETAS_ROL[rol];
+  return String(rol).replace(/_/g, ' ');
 }

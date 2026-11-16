@@ -51,7 +51,14 @@ export async function obtenerOAsignarSeccion(trx, idCursoLectivo, anoACursar) {
     }
   }
 
-  const siguienteNumero = seccionesDelGrado.length + 1;
+  // Siguiente número libre: el mayor existente + 1 (contar filas repetía nombres si había huecos, p. ej. 7-1 y 7-3).
+  const numerosExistentes = seccionesDelGrado
+    .map((s) => {
+      const m = /-(\d+)$/.exec(String(s.nombre_seccion || ''));
+      return m ? Number(m[1]) : Number(s.numero_seccion) || 0;
+    })
+    .filter((n) => Number.isFinite(n));
+  const siguienteNumero = Math.max(seccionesDelGrado.length, ...numerosExistentes) + 1;
   const [nueva] = await trx('seccion')
     .insert({
       numero_seccion: siguienteNumero,

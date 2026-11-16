@@ -30,6 +30,9 @@ const PanelOrientador = lazy(() => import('../pages/orientador/PanelOrientador')
 const GestionEstadosOrientacion = lazy(() => import('../pages/orientador/GestionEstadosOrientacion'))
 const HistorialEstados = lazy(() => import('../pages/orientador/HistorialEstados'))
 
+// Equipo de Permanencia Estudiantil (EPI)
+const ReportesAsistenciaEpi = lazy(() => import('../pages/epi/ReportesAsistenciaEpi'))
+
 // Super administrador
 const PanelSuperAdmin = lazy(() => import('../pages/superadmin/PanelSuperAdmin'))
 const GestionAdministradores = lazy(() => import('../pages/superadmin/GestionAdministradores'))
@@ -55,7 +58,7 @@ function Routing() {
         <Routes>
           <Route path='/' element={<Loading />}/>
           <Route path='/login' element={<Login/>}/>
-          <Route path='/cambiar-contraseña' element={<ProtectedRoute allowedRoles={['administrador', 'profesor', 'padre_de_familia', 'orientador', 'super_administrador']} allowPendingPasswordChange={true}><CambioContra/></ProtectedRoute>}/>
+          <Route path='/cambiar-contraseña' element={<ProtectedRoute allowedRoles={['administrador', 'profesor', 'padre_de_familia', 'orientador', 'super_administrador', 'epi']} allowPendingPasswordChange={true}><CambioContra/></ProtectedRoute>}/>
           <Route path='/inicio' element={<ProtectedRoute allowedRoles={['administrador', 'profesor', 'padre_de_familia', 'orientador']}><Homepage/></ProtectedRoute>}/>
           <Route path='/panel-super-admin' element={<ProtectedRoute allowedRoles={['super_administrador']}><PanelSuperAdmin /></ProtectedRoute>}/>
           <Route path='/superadmin/administradores' element={<ProtectedRoute allowedRoles={['super_administrador']}><GestionAdministradores /></ProtectedRoute>}/>
@@ -95,6 +98,7 @@ function Routing() {
               </ProtectedRoute>
             }
           />
+          <Route path='/epi/reportes' element={<ProtectedRoute allowedRoles={['epi', 'administrador', 'super_administrador']}><ReportesAsistenciaEpi /></ProtectedRoute>}/>
           <Route path='/panel-orientador' element={<ProtectedRoute allowedRoles={['orientador']}><PanelOrientador /></ProtectedRoute>}/>
           <Route path='/orientacion/estados' element={<ProtectedRoute allowedRoles={['administrador', 'orientador']}><GestionEstadosOrientacion /></ProtectedRoute>}/>
           <Route path='/orientacion/historial' element={<ProtectedRoute allowedRoles={['administrador', 'orientador', 'super_administrador']}><HistorialEstados /></ProtectedRoute>}/>

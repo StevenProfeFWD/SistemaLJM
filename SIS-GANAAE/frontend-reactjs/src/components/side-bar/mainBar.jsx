@@ -17,6 +17,7 @@ import {
   X,
   FileCheck,
   Bell,
+  ClipboardList,
 } from "lucide-react"
 import { cn } from "../../lib/utils"
 import { Button } from "../ui/button"
@@ -29,6 +30,7 @@ const ITEMS_SUPER_ADMIN = [
   { icon: Shield, label: 'Gestión de administradores', href: '/superadmin/administradores' },
   { icon: Users, label: 'Gestión de estudiantes', href: '/estudiantes' },
   { icon: PieChart, label: 'Gráficos estadísticos', href: '/dashboard-reportes' },
+  { icon: ClipboardList, label: 'Reportes de asistencia (EPI)', href: '/epi/reportes' },
   { icon: History, label: 'Reportes de orientación', href: '/orientacion/historial' },
   { icon: FileCheck, label: 'Justificaciones', href: '/justificaciones' },
   { icon: Bell, label: 'Historial de notificaciones', href: '/notificaciones' },
@@ -47,6 +49,10 @@ const ITEM_ORIENTADOR = [
   { icon: FileCheck, label: "Justificaciones", href: "/justificaciones", roles: ['orientador'] },
   { icon: Bell, label: "Historial de notificaciones", href: "/notificaciones", roles: ['orientador'] },
   { icon: PieChart, label: "Reportes y Alertas", href: "/dashboard-reportes", roles: ['orientador'] },
+];
+
+const ITEMS_EPI = [
+  { icon: ClipboardList, label: 'Reportes de asistencia', href: '/epi/reportes' },
 ];
 
 const ITEM_TUTOR = [
@@ -92,6 +98,9 @@ const MainBar = () => {
     if (!user?.rol) return []
     if (user.rol === 'super_administrador') {
       return ITEMS_SUPER_ADMIN
+    }
+    if (user.rol === 'epi') {
+      return ITEMS_EPI
     }
     if (user.rol === 'orientador') {
       return ITEM_ORIENTADOR
@@ -141,8 +150,9 @@ const MainBar = () => {
         id="main-sidebar-nav"
         className={cn(
           'flex h-screen w-80 max-w-[min(100vw,20rem)] flex-col border-r border-border bg-background shrink-0',
-          'fixed inset-y-0 left-0 z-50 transition-transform duration-200 ease-out motion-reduce:transition-none',
-          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full',
+          'fixed inset-y-0 left-0 z-50 transition-[translate,visibility] duration-200 ease-out motion-reduce:transition-none',
+          // Cerrado en móvil: además de desplazarse, se oculta (invisible) para que sus enlaces no reciban foco con Tab.
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full max-lg:invisible',
           'lg:static lg:z-auto lg:translate-x-0 lg:max-w-none'
         )}
       >
