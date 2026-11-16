@@ -25,3 +25,8 @@ dist-ssr
 
 #Enviroment variables
 .env
+
+# Resultados generados por las suites de pruebas (se regeneran en cada corrida)
+pruebas/*/resultados/
+pruebas/*/coverage/
+pruebas/**/.vite-cache/
