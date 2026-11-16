@@ -4,5 +4,6 @@
 export function rutaInicioPorRol(rol) {
   if (rol === 'orientador') return '/panel-orientador';
   if (rol === 'super_administrador') return '/panel-super-admin';
+  if (rol === 'epi') return '/epi/reportes';
   return '/inicio';
 }

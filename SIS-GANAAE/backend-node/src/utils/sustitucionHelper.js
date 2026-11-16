@@ -11,8 +11,10 @@ export function fechaHoyIso() {
 export function fechaDiaAnterior(iso) {
   const base = fechaAIsoDia(iso);
   if (!base) return '';
-  const d = new Date(`${base}T12:00:00`);
-  d.setDate(d.getDate() - 1);
+  // Aritmética en UTC: no depende de la zona horaria del servidor.
+  const [y, m, dia] = base.split('-').map(Number);
+  const d = new Date(Date.UTC(y, m - 1, dia));
+  d.setUTCDate(d.getUTCDate() - 1);
   return d.toISOString().slice(0, 10);
 }
 

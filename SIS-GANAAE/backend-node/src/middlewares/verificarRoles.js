@@ -7,6 +7,7 @@ import {
   puedeConsultarEstudiantes,
   puedeLeerOrientacion,
   puedeVerReportesEstrategicos,
+  puedeVerReportesEpi,
 } from '../utils/roles.js';
 
 /** Lectura del catálogo global de personas (PII): roles administrativos superiores. */
@@ -97,6 +98,14 @@ export const verificarComprobanteOrientacionLectura = (req, res, next) => {
   const roles = ['administrador', 'orientador', 'padre_de_familia', 'super_administrador'];
   if (!roles.includes(req.user.rol)) {
     return res.status(403).json({ error: 'No autorizado para descargar este comprobante' });
+  }
+  next();
+};
+
+/** Reportes de asistencia EPI (Equipo de Permanencia Estudiantil). */
+export const verificarReportesEpi = (req, res, next) => {
+  if (!puedeVerReportesEpi(req.user?.rol)) {
+    return res.status(403).json({ error: 'Acceso restringido al Equipo de Permanencia Estudiantil' });
   }
   next();
 };

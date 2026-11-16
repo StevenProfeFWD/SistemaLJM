@@ -48,6 +48,12 @@ export function firmarTokenPendientePassword(idPersona) {
   return firmarTokenAcceso({ id: idPersona, purpose: 'password_change' }, '10m');
 }
 
+/**
+ * Indica si el jti fue revocado.
+ * Si la consulta falla (BD caída, timeout) se lanza el error: no se puede
+ * asegurar que el token siga vigente, así que quien llama debe rechazarlo
+ * (fail-closed) en lugar de aceptarlo.
+ */
 export async function tokenEstaRevocado(jti) {
   if (!jti) return false;
   await asegurarTabla();
@@ -55,8 +61,10 @@ export async function tokenEstaRevocado(jti) {
     const row = await db('jwt_revocado').where({ jti: String(jti) }).first();
     return Boolean(row);
   } catch (err) {
+    // 42P01 = la tabla no existe: no hay revocaciones registradas, el token no puede estar revocado.
+    if (err?.code === '42P01') return false;
     console.error('[tokenRevocation] Error al consultar revocación:', err.message);
-    return false;
+    throw err;
   }
 }
 

@@ -1,0 +1,6 @@
+node_modules/
+navegador/.vite-cache/
+navegador/.vite-cache-build/
+resultados/build/
+resultados/build-simulado/
+resultados/cobertura/

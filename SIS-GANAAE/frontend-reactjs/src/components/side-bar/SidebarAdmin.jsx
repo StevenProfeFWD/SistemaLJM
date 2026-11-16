@@ -13,6 +13,7 @@ import {
   GraduationCap,
   UserCog,
   FileCheck,
+  Bell,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -50,7 +51,11 @@ const SECCIONES = [
   },
   {
     titulo: 'Reportes',
-    items: [{ icon: PieChart, label: 'Reportes estadísticos', href: '/dashboard-reportes' }],
+    items: [
+      { icon: PieChart, label: 'Reportes estadísticos', href: '/dashboard-reportes' },
+      { icon: ClipboardList, label: 'Reportes de asistencia (EPI)', href: '/epi/reportes' },
+      { icon: Bell, label: 'Historial de notificaciones', href: '/notificaciones' },
+    ],
   },
 ];
 

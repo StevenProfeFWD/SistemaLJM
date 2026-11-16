@@ -5,27 +5,28 @@ import {
 import { listEstadosEspecialesHijo } from './padresEstadosService.js';
 
 function inicioAnioLectivo() {
-  const anio = new Date().getFullYear();
-  return `${anio}-01-01`;
+  return `${hoyIso().slice(0, 4)}-01-01`;
 }
 
+/** Fecha de hoy (AAAA-MM-DD) en hora de Costa Rica; toISOString() daba el día siguiente después de las 18:00. */
 function hoyIso() {
-  return new Date().toISOString().slice(0, 10);
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Costa_Rica',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
 }
 
+// Inicio y fin de mes a partir de la fecha de Costa Rica (coherentes con hoyIso aunque el servidor corra en UTC).
 function inicioMesActual() {
-  const hoy = new Date();
-  const y = hoy.getFullYear();
-  const m = String(hoy.getMonth() + 1).padStart(2, '0');
-  return `${y}-${m}-01`;
+  return `${hoyIso().slice(0, 7)}-01`;
 }
 
 function finMesActual() {
-  const hoy = new Date();
-  const y = hoy.getFullYear();
-  const m = hoy.getMonth();
-  const ultimo = new Date(y, m + 1, 0).getDate();
-  return `${y}-${String(m + 1).padStart(2, '0')}-${String(ultimo).padStart(2, '0')}`;
+  const [y, m] = hoyIso().split('-').map(Number);
+  const ultimo = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  return `${y}-${String(m).padStart(2, '0')}-${String(ultimo).padStart(2, '0')}`;
 }
 
 export async function obtenerDashboardHijo(padreId, idEstudiante) {
@@ -46,7 +47,7 @@ export async function obtenerDashboardHijo(padreId, idEstudiante) {
 
   return {
     estudiante: anual.estudiante,
-    anio_lectivo: anual.estudiante.anio_curso_lectivo || new Date().getFullYear(),
+    anio_lectivo: anual.estudiante.anio_curso_lectivo || Number(hoyIso().slice(0, 4)),
     resumen_anual: anual.resumen,
     resumen_mes: mensual.resumen,
     rango_mes: mensual.rango,

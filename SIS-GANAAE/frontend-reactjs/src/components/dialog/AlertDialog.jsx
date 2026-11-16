@@ -36,13 +36,35 @@ export default function AlertDialog({
 
   const titleId = useId();
 
+  const messageId = useId();
+
   const closeRef = useRef(null);
+
+  const dialogRef = useRef(null);
+
+  // onClose en una ref: si su identidad cambia mientras el diálogo está abierto no se re-ejecuta el efecto
+
+  // (eso movería el foco y perdería el elemento al que hay que devolverlo).
+
+  const onCloseRef = useRef(onClose);
+
+
+
+  useEffect(() => {
+
+    onCloseRef.current = onClose;
+
+  }, [onClose]);
 
 
 
   useEffect(() => {
 
     if (!open) return undefined;
+
+    // Elemento que tenía el foco al abrir: se le devuelve al cerrar (WCAG 2.4.3).
+
+    const previo = document.activeElement;
 
     closeRef.current?.focus();
 
@@ -52,7 +74,55 @@ export default function AlertDialog({
 
         e.preventDefault();
 
-        onClose?.();
+        onCloseRef.current?.();
+
+        return;
+
+      }
+
+      if (e.key !== 'Tab') return;
+
+      // Trampa de foco: Tab / Shift+Tab no salen del diálogo modal.
+
+      const cont = dialogRef.current;
+
+      if (!cont) return;
+
+      const enfocables = [
+
+        ...cont.querySelectorAll(
+
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+        ),
+
+      ];
+
+      if (enfocables.length === 0) {
+
+        e.preventDefault();
+
+        return;
+
+      }
+
+      const primero = enfocables[0];
+
+      const ultimo = enfocables[enfocables.length - 1];
+
+      const activo = document.activeElement;
+
+      if (e.shiftKey && (activo === primero || !cont.contains(activo))) {
+
+        e.preventDefault();
+
+        ultimo.focus();
+
+      } else if (!e.shiftKey && (activo === ultimo || !cont.contains(activo))) {
+
+        e.preventDefault();
+
+        primero.focus();
 
       }
 
@@ -60,9 +130,19 @@ export default function AlertDialog({
 
     document.addEventListener('keydown', onKeyDown);
 
-    return () => document.removeEventListener('keydown', onKeyDown);
+    return () => {
 
-  }, [open, onClose]);
+      document.removeEventListener('keydown', onKeyDown);
+
+      if (previo && typeof previo.focus === 'function' && previo.isConnected) {
+
+        previo.focus();
+
+      }
+
+    };
+
+  }, [open]);
 
 
 
@@ -92,11 +172,15 @@ export default function AlertDialog({
 
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
 
+      ref={dialogRef}
+
       role="alertdialog"
 
       aria-modal="true"
 
       aria-labelledby={titleId}
+
+      aria-describedby={message ? messageId : undefined}
 
     >
 
@@ -118,7 +202,7 @@ export default function AlertDialog({
 
               {message && (
 
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                <p id={messageId} className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
 
                   {message}
 

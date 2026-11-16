@@ -154,7 +154,29 @@ function RegistroPersonas() {
     }
   }
 
-  const agregarPersonas = async () => {
+  const CAMPOS_OBLIGATORIOS = [
+    ['cedula', 'identificación'],
+    ['nombre_completo', 'nombre completo'],
+    ['correo', 'correo'],
+    ['telefono', 'teléfono'],
+    ['direccion', 'dirección'],
+    ['fecha_nacimiento', 'fecha de nacimiento'],
+    ['nombre_rol', 'rol'],
+  ]
+
+  const agregarPersonas = async (e) => {
+    e?.preventDefault?.()
+    // Validación propia además de la nativa del <form> (antes "Guardar" enviaba campos vacíos al servidor).
+    const faltantes = CAMPOS_OBLIGATORIOS
+      .filter(([campo]) => !String(persona[campo] ?? '').trim())
+      .map(([, etiqueta]) => etiqueta)
+    if (faltantes.length > 0) {
+      setStatus({
+        type: 'error',
+        message: `Complete los campos obligatorios: ${faltantes.join(', ')}.`,
+      })
+      return
+    }
     if (consultaCedula.estado === 'interno') {
       setStatus({
         type: 'error',
@@ -211,11 +233,13 @@ function RegistroPersonas() {
             </Alert>
           )}
 
+          <form id="form-registro-persona" onSubmit={agregarPersonas} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Identificación (Cédula o DIMEX)</Label>
+              <Label htmlFor="reg-cedula">Identificación (Cédula o DIMEX)</Label>
               <div className="relative">
                 <Input
+                  id="reg-cedula"
                   name="cedula"
                   value={persona.cedula}
                   onChange={onCedulaChange}
@@ -243,8 +267,9 @@ function RegistroPersonas() {
               )}
             </div>
             <div className="space-y-2">
-              <Label>Nombre completo</Label>
+              <Label htmlFor="reg-nombre">Nombre completo</Label>
               <Input
+                id="reg-nombre"
                 name="nombre_completo"
                 value={persona.nombre_completo}
                 onChange={enviarPersona}
@@ -254,15 +279,15 @@ function RegistroPersonas() {
               />
             </div>
             <div className="space-y-2">
-              <Label>Correo</Label>
-              <Input name='correo' type='email' value={persona.correo} onChange={enviarPersona} placeholder='correo@ejemplo.com' required />
+              <Label htmlFor="reg-correo">Correo</Label>
+              <Input id="reg-correo" name='correo' type='email' value={persona.correo} onChange={enviarPersona} placeholder='correo@ejemplo.com' required />
             </div>
             <div className="space-y-2">
-              <Label>Teléfono</Label>
-              <Input name='telefono' type='text' value={persona.telefono} onChange={enviarPersona} placeholder='Número de teléfono' required />
+              <Label htmlFor="reg-telefono">Teléfono</Label>
+              <Input id="reg-telefono" name='telefono' type='text' value={persona.telefono} onChange={enviarPersona} placeholder='Número de teléfono' required />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <Label>Dirección</Label>
+              <Label htmlFor="direccion">Dirección</Label>
               <Textarea
                 name="direccion"
                 id="direccion"
@@ -274,11 +299,11 @@ function RegistroPersonas() {
               />
             </div>
             <div className="space-y-2">
-              <Label>Fecha de nacimiento</Label>
-              <Input name='fecha_nacimiento' type='date' value={persona.fecha_nacimiento} onChange={enviarPersona} required />
+              <Label htmlFor="reg-fecha-nacimiento">Fecha de nacimiento</Label>
+              <Input id="reg-fecha-nacimiento" name='fecha_nacimiento' type='date' value={persona.fecha_nacimiento} onChange={enviarPersona} required />
             </div>
             <div className="space-y-2">
-              <Label>Rol</Label>
+              <Label htmlFor="rol">Rol</Label>
               <Select
                 name="nombre_rol"
                 id="rol"
@@ -289,14 +314,15 @@ function RegistroPersonas() {
                 <option value="">Seleccione un rol</option>
                 <option value="profesor">Docente</option>
                 <option value="orientador">Orientador</option>
+                <option value="epi">Equipo de Permanencia Estudiantil (EPI)</option>
                 <option value="padre_de_familia">Padre de familia / Tutor</option>
               </Select>
             </div>
           </div>
 
           {persona.nombre_rol === 'profesor' && (
-            <div className="rounded-lg border border-border p-4 space-y-2">
-              <Label className="text-base">Materias habilitadas (formación)</Label>
+            <div className="rounded-lg border border-border p-4 space-y-2" role="group" aria-labelledby="reg-materias-titulo">
+              <p id="reg-materias-titulo" className="text-base leading-none font-medium">Materias habilitadas (formación)</p>
               <p className="text-xs text-muted-foreground">
                 Obligatorio al menos una. Solo podrá asignársele carga en estas materias (regla estricta).
               </p>
@@ -315,10 +341,11 @@ function RegistroPersonas() {
           )}
 
           <div className="flex gap-3 justify-end">
-            <Button onClick={agregarPersonas} disabled={loading || buscandoCedula || consultaCedula.estado === 'interno'}>
+            <Button type="submit" disabled={loading || buscandoCedula || consultaCedula.estado === 'interno'}>
               {loading ? "Guardando..." : "Guardar"}
             </Button>
           </div>
+          </form>
         </CardContent>
       </Card>
     </div>

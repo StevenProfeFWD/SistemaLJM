@@ -166,17 +166,29 @@ export function extractPrecargaRow(row) {
 export function parseFechaNacimiento(raw) {
   const s = String(raw || '').trim();
   if (!s) return null;
-  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+  // Se admite una hora opcional después de la fecha ISO (p. ej. exportaciones "2010-01-01 00:00:00").
+  const iso = /^(\d{4})-(\d{2})-(\d{2})(?:[T ][\d:.]*(?:Z|[+-]\d{2}:?\d{2})?)?$/.exec(s);
   if (iso) {
-    return `${iso[1]}-${iso[2]}-${iso[3]}`;
+    return fechaExiste(iso[1], iso[2], iso[3]) ? `${iso[1]}-${iso[2]}-${iso[3]}` : null;
   }
   const dmy = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/.exec(s);
   if (dmy) {
     const d = dmy[1].padStart(2, '0');
     const m = dmy[2].padStart(2, '0');
-    return `${dmy[3]}-${m}-${d}`;
+    return fechaExiste(dmy[3], m, d) ? `${dmy[3]}-${m}-${d}` : null;
   }
   return null;
+}
+
+/** true si año-mes-día es una fecha real del calendario (rechaza 31/02, mes 13…). */
+function fechaExiste(anio, mes, dia) {
+  const y = Number(anio);
+  const m = Number(mes);
+  const d = Number(dia);
+  if (y < 1 || m < 1 || m > 12 || d < 1) return false; // PostgreSQL no tiene año 0
+  const f = new Date(Date.UTC(2000, m - 1, d));
+  f.setUTCFullYear(y);
+  return f.getUTCFullYear() === y && f.getUTCMonth() === m - 1 && f.getUTCDate() === d;
 }
 
 const PREFIJO_A_ANO = {

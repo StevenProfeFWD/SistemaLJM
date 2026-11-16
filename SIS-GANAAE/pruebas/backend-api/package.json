@@ -1,0 +1,14 @@
+{
+  "name": "pruebas-backend-api-epi",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "perf": "node --expose-gc --import ./perf/register.mjs perf/perf.mjs"
+  },
+  "devDependencies": {
+    "autocannon": "^8.0.0",
+    "supertest": "^7.1.4",
+    "vitest": "^3.2.4"
+  }
+}
