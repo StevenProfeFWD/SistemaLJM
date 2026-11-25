@@ -8,6 +8,7 @@ import { Shield, Loader2, UserPlus } from 'lucide-react';
 import superadminApi from '../../services/superadminServices';
 import { useDialog } from '../../context/DialogContext';
 import LoadingStatus from '../../components/ui/LoadingStatus';
+import { useRestablecerContrasena } from '../../lib/useRestablecerContrasena';
 
 const emptyForm = {
   nombre_completo: '',
@@ -43,6 +44,7 @@ function esSuperAdmin(rol) {
 
 export default function GestionAdministradores() {
   const { confirm, toast } = useDialog();
+  const { restablecer, restableciendoId } = useRestablecerContrasena();
   const [lista, setLista] = useState([]);
   const [filtro, setFiltro] = useState('');
   const [form, setForm] = useState(emptyForm);
@@ -131,6 +133,11 @@ export default function GestionAdministradores() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const onRestablecer = async (admin) => {
+    const hecho = await restablecer(admin);
+    if (hecho) await cargar();
   };
 
   const toggleActivo = async (admin) => {
@@ -295,7 +302,7 @@ export default function GestionAdministradores() {
                       <th className="text-left p-3 font-medium">Correo</th>
                       <th className="text-left p-3 font-medium">Rol</th>
                       <th className="text-left p-3 font-medium">Estado</th>
-                      <th className="text-right p-3 font-medium w-48">Acciones</th>
+                      <th className="text-right p-3 font-medium">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -334,6 +341,16 @@ export default function GestionAdministradores() {
                                   disabled={loading}
                                 >
                                   Editar
+                                </Button>
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => onRestablecer(a)}
+                                  disabled={loading || restableciendoId != null}
+                                  aria-label={`Restablecer contraseña de ${a.nombre_completo}`}
+                                >
+                                  {restableciendoId === a.id_persona ? 'Restableciendo…' : 'Restablecer contraseña'}
                                 </Button>
                                 <Button
                                   type="button"

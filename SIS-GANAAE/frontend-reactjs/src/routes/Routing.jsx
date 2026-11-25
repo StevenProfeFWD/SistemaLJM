@@ -24,6 +24,7 @@ const DashboardAdmin = lazy(() => import('../pages/admin/DashboardAdmin'))
 const HistorialNotificaciones = lazy(() =>
   import('../pages/admin/HistorialNotificaciones')
 )
+const RestablecerContrasenas = lazy(() => import('../pages/admin/RestablecerContrasenas'))
 
 // Orientación
 const PanelOrientador = lazy(() => import('../pages/orientador/PanelOrientador'))
@@ -86,6 +87,7 @@ function Routing() {
           <Route path='/asignacion' element={<ProtectedRoute allowedRoles={['administrador']}><Asignacion/></ProtectedRoute>}/>
           <Route path='/gestion-profesores-guia' element={<ProtectedRoute allowedRoles={['administrador']}><GestionSecciones /></ProtectedRoute>}/>
           <Route path='/gestion-docentes' element={<ProtectedRoute allowedRoles={['administrador']}><GestionDocentes /></ProtectedRoute>}/>
+          <Route path='/restablecer-contrasenas' element={<ProtectedRoute allowedRoles={['administrador']}><RestablecerContrasenas /></ProtectedRoute>}/>
           <Route path='/materias' element={<ProtectedRoute allowedRoles={['administrador']}><GestionMaterias /></ProtectedRoute>}/>
           <Route path='/dashboard-reportes' element={<ProtectedRoute allowedRoles={['administrador', 'orientador', 'super_administrador']}><DashboardAdmin /></ProtectedRoute>}/>
           <Route

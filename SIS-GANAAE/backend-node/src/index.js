@@ -21,6 +21,7 @@ import seccionRoutes from './routes/seccionRoutes.js';
 import personalRoutes from './routes/personalRoutes.js';
 import justificacionRoutes from './routes/justificacionRoutes.js';
 import notificacionRoutes from './routes/notificacionRoutes.js';
+import restablecimientoContrasenaRoutes from './routes/restablecimientoContrasenaRoutes.js';
 import { notFound, errorHandler } from './middlewares/errorHandler.js';
 import { iniciarLimpiezaJwtCron } from './jobs/jwtCleanupCron.js';
 import cookieParser from 'cookie-parser';
@@ -79,6 +80,7 @@ app.use('/api', seccionRoutes);
 app.use('/api', personalRoutes);
 app.use('/api', justificacionRoutes);
 app.use('/api', notificacionRoutes);
+app.use('/api', restablecimientoContrasenaRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).json({ status: 'ok' });

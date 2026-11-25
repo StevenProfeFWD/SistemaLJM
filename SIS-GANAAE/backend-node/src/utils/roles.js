@@ -53,6 +53,24 @@ export function puedeVerReportesEpi(rol) {
   return rol === ROL_EPI || esAdministradorPlataforma(rol);
 }
 
+/**
+ * Roles cuya contraseña puede restablecer cada rol administrativo.
+ * - Super administrador: solo administradores.
+ * - Administrador: profesores, orientadores, EPI y encargados (no otros administradores).
+ */
+const ROLES_RESTABLECIBLES = {
+  [ROL_SUPER_ADMIN]: [ROL_ADMIN],
+  [ROL_ADMIN]: [ROL_PROFESOR, ROL_ORIENTADOR, ROL_EPI, 'padre_de_familia'],
+};
+
+export function rolesRestableciblesPor(rol) {
+  return Object.hasOwn(ROLES_RESTABLECIBLES, rol) ? [...ROLES_RESTABLECIBLES[rol]] : [];
+}
+
+export function puedeRestablecerContrasenas(rol) {
+  return rolesRestableciblesPor(rol).length > 0;
+}
+
 const ETIQUETAS_ROL = {
   [ROL_SUPER_ADMIN]: 'Super administrador',
   [ROL_ADMIN]: 'Administrador',

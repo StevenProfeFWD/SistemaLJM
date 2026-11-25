@@ -32,6 +32,7 @@ const MATRIZ = {
   verificarAdminOReportes: [['super_administrador', 'administrador', 'orientador'], 'Acceso restringido a reportes estratégicos'],
   verificarComprobanteOrientacionLectura: [['administrador', 'orientador', 'padre_de_familia', 'super_administrador'], 'No autorizado para descargar este comprobante'],
   verificarReportesEpi: [['super_administrador', 'administrador', 'epi'], 'Acceso restringido al Equipo de Permanencia Estudiantil'],
+  verificarRestablecerContrasenas: [['super_administrador', 'administrador'], 'Solo la administración puede restablecer contraseñas'],
 };
 
 describe('verificarRoles — cobertura de exports', () => {
@@ -64,7 +65,7 @@ describe.each(Object.entries(MATRIZ))('%s', (nombre, [permitidos, mensaje]) => {
 });
 
 describe('req.user ausente (middleware usado sin verificarToken)', () => {
-  const tolerantes = ['verificarConsultaCatalogoPersonas', 'verificarPersonalAcademico', 'verificarReportesEpi'];
+  const tolerantes = ['verificarConsultaCatalogoPersonas', 'verificarPersonalAcademico', 'verificarReportesEpi', 'verificarRestablecerContrasenas'];
 
   it.each(tolerantes)('%s usa optional chaining → responde 403', (nombre) => {
     const { res, next } = ejecutar(M[nombre], undefined);
