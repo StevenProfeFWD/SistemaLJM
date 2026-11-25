@@ -8,7 +8,16 @@ import {
   puedeLeerOrientacion,
   puedeVerReportesEstrategicos,
   puedeVerReportesEpi,
+  puedeRestablecerContrasenas,
 } from '../utils/roles.js';
+
+/** Restablecer contraseñas: super administrador (a administradores) y administrador (al resto del personal y encargados). */
+export const verificarRestablecerContrasenas = (req, res, next) => {
+  if (!puedeRestablecerContrasenas(req.user?.rol)) {
+    return res.status(403).json({ error: 'Solo la administración puede restablecer contraseñas' });
+  }
+  next();
+};
 
 /** Lectura del catálogo global de personas (PII): roles administrativos superiores. */
 export const verificarConsultaCatalogoPersonas = (req, res, next) => {

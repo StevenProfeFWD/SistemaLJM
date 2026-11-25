@@ -500,7 +500,9 @@ export async function loginPersona(req, res) {
   //Verificar si es el primer login
   if (usuario.primer_login == true) {
     const pendingToken = firmarTokenPendientePassword(persona.id_persona);
+    // Si quedaba una cookie de sesión anterior (p. ej. tras un restablecimiento), se elimina.
     return res
+      .clearCookie('token', cookieClearOptions())
       .cookie('pending_password_change', cifrarCookie(pendingToken), cookieAuthOptions({ maxAgeMs: 1000 * 60 * 10 }))
       .json({
         mensaje: 'Debe cambiar su contraseña generica a una de uso personal',

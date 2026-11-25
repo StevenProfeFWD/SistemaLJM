@@ -14,6 +14,7 @@ import {
   UserCog,
   FileCheck,
   Bell,
+  KeyRound,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -27,6 +28,7 @@ const SECCIONES = [
     items: [
       { icon: User, label: 'Registro de Personas', href: '/registro' },
       { icon: UserCog, label: 'Gestión de docentes', href: '/gestion-docentes' },
+      { icon: KeyRound, label: 'Restablecer contraseñas', href: '/restablecer-contrasenas' },
       { icon: Upload, label: 'Precarga masiva (CSV)', href: '/precarga-estudiantes' },
       { icon: Book, label: 'Gestión de materias', href: '/materias' },
     ],

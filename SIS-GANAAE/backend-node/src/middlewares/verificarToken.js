@@ -25,7 +25,8 @@ async function assertCuentaActivaYEnriquecer(decoded) {
       'p.nombre_rol',
       'p.correo',
       'p.activo as persona_activa',
-      'u.activo as cuenta_activa'
+      'u.activo as cuenta_activa',
+      'u.primer_login'
     )
     .first();
 
@@ -39,6 +40,17 @@ async function assertCuentaActivaYEnriquecer(decoded) {
 
   if (row.cuenta_activa !== true) {
     return { ok: false, status: 403, mensaje: 'Cuenta desactivada o sin acceso al sistema' };
+  }
+
+  // Con primer_login = true el login solo emite el token temporal de cambio de contraseña.
+  // Un token de sesión normal en ese estado es anterior a un restablecimiento de contraseña:
+  // la sesión ya no es válida y debe iniciar sesión de nuevo.
+  if (row.primer_login === true && decoded?.purpose !== 'password_change') {
+    return {
+      ok: false,
+      status: 401,
+      mensaje: 'Su contraseña fue restablecida. Inicie sesión nuevamente.',
+    };
   }
 
   return {
@@ -111,7 +123,9 @@ export const verificarTokenCambioContrasena = async (req, res, next) => {
   const pendingToken = descifrarCookie(pendingCifrado);
   const { id } = req.params;
 
-  const tokenToVerify = token || pendingToken;
+  // El token temporal de cambio de contraseña tiene prioridad: tras un restablecimiento puede
+  // quedar una cookie de sesión anterior que ya no es válida.
+  const tokenToVerify = pendingToken || token;
   if (!tokenToVerify) {
     return res.status(401).json({
       mensaje:
